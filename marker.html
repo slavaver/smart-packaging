@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PD</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/p5@0.10.2/lib/p5.js"></script>
+</head>
+
+<body>
+    <header>
+        <p>Смарт-Маркировка защиты продукции<br>by Moscow Polytech</p>
+    </header>
+    <section id="s1">
+        <div class="nocontent">
+            <h1>ЗАГРУЗИТЕ ИЗОБРАЖЕНИЯ</h1>
+            <div class="both">
+                <div class="both__part">
+                    <h2>Изображение</h2>
+                    <div class="both__part_in">
+                        <label for="input_bg" class="fake_filein">
+							<span id="img_fbg1">Выберите зображение</span>
+							<input id="input_bg" type='file' onchange='loadImage()'>
+						</label>
+                    </div>
+                    <div class="content__canvas">
+                        <canvas id="canvas"></canvas>
+                        <div></div>
+                    </div>
+                </div>
+                <div class="both__part">
+                    <h2>Картинка кода</h2>
+                    <div class="both__part_in">
+                        <label for="input_mark" class="fake_filein">
+							<span id="img_fbg2">Выберите изображение</span>
+					  		<input id="input_mark" type='file' onchange='loadMark()'>
+						</label>
+                    </div>
+                    <div class="content__mark">
+                        <canvas id="canvas_mark"></canvas>
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="user_controlb_pannel">
+            <div class="user_controlb_pannel__button">
+                <a href="index.html#s0">
+                    <h2>Вернуться</h2>
+                </a>
+            </div>
+            <div class="user_controlb_pannel__button">
+                <a href="#s2">
+                    <h2>Продолжить</h2>
+                </a>
+            </div>
+        </div>
+    </section>
+    <div class="fake_between"></div>
+    <section id="s2">
+        <h1>ВЫБЕРИТЕ КАНАЛ</h1>
+        <div class="content__channels">
+            <div class="content__channels__part" id="channel__part1" onClick="createChoosen(this)">
+                <p></p>
+            </div>
+            <div class="content__channels__part" id="channel__part2" onClick="createChoosen(this)">
+                <p></p>
+            </div>
+            <div class="content__channels__part" id="channel__part3" onClick="createChoosen(this)">
+                <p></p>
+            </div>
+            <div class="content__channels__part" id="channel__part4" onClick="createChoosen(this)">
+                <p></p>
+            </div>
+        </div>
+        <div class="user_controlb_pannel ucp_2">
+            <div class="user_controlb_pannel__button">
+                <a href="#s1">
+                    <h2>Назад</h2>
+                </a>
+            </div>
+            <div class="user_controlb_pannel__button">
+                <a href="#s3">
+                    <h2>Продолжить</h2>
+                </a>
+            </div>
+        </div>
+    </section>
+    <div class="fake_between"></div>
+    <section id="s3">
+        <h1>ВЫБЕРИТЕ УЧАСТОК</h1>
+        <div class="content__area">
+            <canvas id="canvas_result_usee"></canvas>
+            <canvas id="canvas_area" style="display:none;"></canvas>
+        </div>
+        <div class="user_controlb_pannel ucp_3">
+            <div class="user_controlb_pannel__button">
+                <a href="#s2">
+                    <h2>Назад</h2>
+                </a>
+            </div>
+            <div class="user_controlb_pannel__button">
+                <a href="#s4">
+                    <h2>Продолжить</h2>
+                </a>
+            </div>
+        </div>
+    </section>
+    <div class="fake_between"></div>
+    <section id="s4">
+        <h1>СОХРАНИТЕ ИЗОБРАЖЕНИЕ</h1>
+        <div class="content__result">
+            <canvas id="canvas_result"></canvas>
+            <div id="img_cr"></div>
+        </div>
+        <div class="content__rsave">
+            <div class="user_controlb_pannel ucp_4">
+                <div class="user_controlb_pannel__button">
+                    <h2><a href="index.html#s0">На главную</h2></a></div>
+                <a href="" download="markerResult.jpg" onclick="download_img(this);" class="user_controlb_pannel__button">
+                    <h2>Сохранить</h2>
+                </a>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <div class="footer_top"></div>
+        <div class="footer_bottom">
+            <div class="footer_bottom__logo"></div>
+            <div class="footer_bottom__c">© 2019 Московский политехнический университет</div>
+        </div>
+    </footer>
+</body>
+<script>
+    var place_costil = {};
+    var costilvarfch = {};
+
+    let ch1_img = document.getElementById('channel__part1');
+    let ch2_img = document.getElementById('channel__part2');
+    let ch3_img = document.getElementById('channel__part3');
+    let ch4_img = document.getElementById('channel__part4');
+
+    function loadImage() {
+        var input, file, reader, img;
+
+        input = document.getElementById('input_bg');
+
+        file = input.files[0];
+        reader = new FileReader();
+        reader.onload = drawImage;
+        reader.readAsDataURL(file);
+
+
+        function drawImage() {
+            img = new Image();
+            img.onload = function() {
+                var canvas = document.getElementById("canvas")
+                canvas.width = img.width;
+                canvas.height = img.height;
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                let img_fbg1 = document.getElementById("img_fbg1");
+                img_fbg1.style.backgroundImage = "url(" + canvas.toDataURL("image/png") + ")";
+
+                var pixelData1 = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                var pixelData2 = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                var pixelData3 = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                var pixelData4 = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                for (var i = 0; i < pixelData1.data.length; i += 4) {
+                    let new_cmyk = rgb2cmyk(pixelData1.data[i], pixelData1.data[i + 1], pixelData1.data[i + 2]);
+                    let new_rgb_c = cmyk2rgb(new_cmyk.c, 0, 0, 0);
+                    pixelData1.data[i] = new_rgb_c.r;
+                    pixelData1.data[i + 1] = new_rgb_c.g;
+                    pixelData1.data[i + 2] = new_rgb_c.b;
+                }
+                ctx.putImageData(pixelData1, 0, 0);
+                ch1_img.style.backgroundImage = "url(" + canvas.toDataURL("image/png") + ")";
+
+                for (var i = 0; i < pixelData2.data.length; i += 4) {
+                    let new_cmyk = rgb2cmyk(pixelData2.data[i], pixelData2.data[i + 1], pixelData2.data[i + 2]);
+                    let new_rgb_m = cmyk2rgb(0, new_cmyk.m, 0, 0);
+                    pixelData2.data[i] = new_rgb_m.r;
+                    pixelData2.data[i + 1] = new_rgb_m.g;
+                    pixelData2.data[i + 2] = new_rgb_m.b;
+                }
+                ctx.putImageData(pixelData2, 0, 0);
+                ch2_img.style.backgroundImage = "url(" + canvas.toDataURL("image/png") + ")";
+
+                for (var i = 0; i < pixelData3.data.length; i += 4) {
+                    let new_cmyk = rgb2cmyk(pixelData3.data[i], pixelData3.data[i + 1], pixelData3.data[i + 2]);
+                    let new_rgb_y = cmyk2rgb(0, 0, new_cmyk.y, 0);
+                    pixelData3.data[i] = new_rgb_y.r;
+                    pixelData3.data[i + 1] = new_rgb_y.g;
+                    pixelData3.data[i + 2] = new_rgb_y.b;
+                }
+                ctx.putImageData(pixelData3, 0, 0);
+                ch3_img.style.backgroundImage = "url(" + canvas.toDataURL("image/png") + ")";
+
+                for (var i = 0; i < pixelData4.data.length; i += 4) {
+                    let new_cmyk = rgb2cmyk(pixelData4.data[i], pixelData4.data[i + 1], pixelData4.data[i + 2]);
+                    let new_rgb_k = cmyk2rgb(0, 0, 0, new_cmyk.k);
+                    pixelData4.data[i] = new_rgb_k.r;
+                    pixelData4.data[i + 1] = new_rgb_k.g;
+                    pixelData4.data[i + 2] = new_rgb_k.b;
+                }
+                ctx.putImageData(pixelData4, 0, 0);
+                ch4_img.style.backgroundImage = "url(" + canvas.toDataURL("image/png") + ")";
+
+                place_costil.c = pixelData1;
+                place_costil.m = pixelData2;
+                place_costil.y = pixelData3;
+                place_costil.k = pixelData4;
+
+                ctx.drawImage(img, 0, 0);
+            }
+            img.src = reader.result;
+        }
+    }
+
+    function loadMark() {
+        var input, file, reader, img;
+
+        input = document.getElementById('input_mark');
+
+        file = input.files[0];
+        reader = new FileReader();
+        reader.onload = drawMark;
+        reader.readAsDataURL(file);
+
+
+        function drawMark() {
+            img = new Image();
+            img.onload = function() {
+                var canvas = document.getElementById("canvas_mark")
+                canvas.width = img.width;
+                canvas.height = img.height;
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                let img_fbg2 = document.getElementById("img_fbg2");
+                img_fbg2.style.backgroundImage = "url(" + canvas.toDataURL("image/png") + ")";
+            }
+            img.src = reader.result;
+        }
+    }
+
+    function createChoosen(clicked) {
+        let choosen_chan = clicked.id;
+        let cl_child = clicked.parentElement.children;
+        console.log(cl_child);
+        for (let i = 0; i < cl_child.length; ++i) {
+            cl_child[i].style.border = 'none';
+            console.log('XXX' + cl_child[i].children);
+            if (cl_child[i].children[0]) {
+                cl_child[i].children[0].remove();
+            }
+        }
+        clicked.style.border = '6px solid green';
+        let galka = document.createElement('div');
+        galka.style.width = "100%";
+        galka.style.height = "100%";
+        galka.style.backgroundImage = "url(img/galka.png)";
+        galka.style.backgroundRepeat = "no-repeat";
+        galka.style.backgroundPosition = "center";
+        galka.style.backgroundSize = "30%";
+        clicked.appendChild(galka);
+        let canvas = document.getElementById("canvas")
+        var canvas_area = document.getElementById("canvas_area");
+        let canvas_result_usee = document.getElementById("canvas_result_usee");
+        var ctx = canvas_area.getContext("2d");
+        let ctx_rs = canvas_result_usee.getContext("2d");
+        canvas_area.width = canvas.width;
+        canvas_area.height = canvas.height;
+
+        canvas_result_usee.height = 400;
+        costilvarfch.koef = canvas_area.height / 400
+        console.log(costilvarfch.koef);
+        canvas_result_usee.width = canvas.width / costilvarfch.koef;
+
+        console.log(choosen_chan);
+        if (choosen_chan == 'channel__part1') {
+            ctx.putImageData(place_costil.c, 0, 0);
+            ctx_rs.putImageData(place_costil.c, 0, 0, 0, 0, 400, 400);
+            place_costil.qu_id = 1;
+        }
+        if (choosen_chan == 'channel__part2') {
+            ctx.putImageData(place_costil.m, 0, 0);
+            ctx_rs.putImageData(place_costil.m, 0, 0, 0, 0, 400, 400);
+            place_costil.qu_id = 2;
+        }
+        if (choosen_chan == 'channel__part3') {
+            ctx.putImageData(place_costil.y, 0, 0);
+            ctx_rs.putImageData(place_costil.y, 0, 0, 0, 0, 400, 400);
+            place_costil.qu_id = 3;
+        }
+        if (choosen_chan == 'channel__part4') {
+            ctx.putImageData(place_costil.k, 0, 0);
+            ctx_rs.putImageData(place_costil.k, 0, 0, 0, 0, 400, 400);
+            place_costil.qu_id = 4;
+        }
+        ctx_rs.drawImage(canvas_area, 0, 0, canvas_area.width, canvas_area.height, 0, 0, canvas_result_usee.width, canvas_result_usee.height);
+    }
+
+
+
+
+    function getCursorPosition(canvas, event) {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((event.clientX - rect.left) * costilvarfch.koef);
+        const y = Math.floor((event.clientY - rect.top) * costilvarfch.koef);
+        console.log("x: " + x + " y: " + y);
+        let canvas_start = document.getElementById("canvas");
+        let canvas_ar = document.getElementById("canvas");
+        let canvas_mark = document.getElementById("canvas_mark");
+        let canvas_result = document.getElementById("canvas_result");
+        let canvas_result_usee = document.getElementById("canvas_result_usee");
+        canvas_result.width = canvas_start.width;
+        canvas_result.height = canvas_start.height;
+        let ctx_s = canvas_start.getContext("2d");
+        let ctx_m = canvas_mark.getContext("2d");
+        let ctx_r = canvas_result.getContext("2d");
+        let ctx_rs = canvas_result_usee.getContext("2d");
+        let pixelData_s = ctx_s.getImageData(0, 0, canvas_ar.width, canvas_ar.height);
+        let pixelData_m = ctx_m.getImageData(0, 0, canvas_mark.width, canvas_mark.height);
+        let mark_p = 0;
+        for (let e_y = y; e_y < y + canvas_mark.height; e_y++) {
+            for (let e_x = x; e_x < x + canvas_mark.width; e_x++) {
+                let i = (e_x + e_y * canvas_result.width) * 4;
+
+                let new_cmyk = rgb2cmyk(pixelData_s.data[i], pixelData_s.data[i + 1], pixelData_s.data[i + 2]);
+                if (place_costil.qu_id == 1) {
+                    if ((pixelData_m.data[mark_p] == 255) && (pixelData_m.data[mark_p + 1] == 255) && (pixelData_m.data[mark_p + 2] == 255)) {
+                        var new_rgb_k = cmyk2rgb(new_cmyk.c, new_cmyk.m, new_cmyk.y, new_cmyk.k);
+                    } else {
+                        var new_rgb_k = cmyk2rgb(100, new_cmyk.m, new_cmyk.y, new_cmyk.k);
+                    }
+                }
+                if (place_costil.qu_id == 2) {
+                    if ((pixelData_m.data[mark_p] == 255) && (pixelData_m.data[mark_p + 1] == 255) && (pixelData_m.data[mark_p + 2] == 255)) {
+                        var new_rgb_k = cmyk2rgb(new_cmyk.c, new_cmyk.m, new_cmyk.y, new_cmyk.k);
+                    } else {
+                        var new_rgb_k = cmyk2rgb(new_cmyk.c, 100, new_cmyk.y, new_cmyk.k);
+                    }
+                }
+                if (place_costil.qu_id == 3) {
+                    if ((pixelData_m.data[mark_p] == 255) && (pixelData_m.data[mark_p + 1] == 255) && (pixelData_m.data[mark_p + 2] == 255)) {
+                        var new_rgb_k = cmyk2rgb(new_cmyk.c, new_cmyk.m, new_cmyk.y, new_cmyk.k);
+                    } else {
+                        var new_rgb_k = cmyk2rgb(new_cmyk.c, new_cmyk.m, 100, new_cmyk.k);
+                    }
+                }
+                if (place_costil.qu_id == 4) {
+                    if ((pixelData_m.data[mark_p] == 255) && (pixelData_m.data[mark_p + 1] == 255) && (pixelData_m.data[mark_p + 2] == 255)) {
+                        var new_rgb_k = cmyk2rgb(new_cmyk.c, new_cmyk.m, new_cmyk.y, new_cmyk.k);
+                    } else {
+                        var new_rgb_k = cmyk2rgb(new_cmyk.c, new_cmyk.m, new_cmyk.y, 100);
+                    }
+                }
+
+                // var new_rgb_k = {};
+                // new_rgb_k.r = pixelData_m.data[mark_p];
+                // new_rgb_k.g = pixelData_m.data[mark_p + 1];
+                // new_rgb_k.b = pixelData_m.data[mark_p + 2];
+
+
+                pixelData_s.data[i] = new_rgb_k.r;
+                pixelData_s.data[i + 1] = new_rgb_k.g;
+                pixelData_s.data[i + 2] = new_rgb_k.b;
+
+                mark_p += 4;
+
+            }
+
+        }
+
+        ctx_r.putImageData(pixelData_s, 0, 0);
+        let img_cr = document.getElementById("img_cr");
+        img_cr.style.backgroundImage = "url(" + canvas_result.toDataURL("image/png") + ")";
+    }
+
+    const canvas = document.getElementById('canvas_result_usee')
+    canvas.addEventListener('mousedown', function(e) {
+        getCursorPosition(canvas, e)
+    })
+
+    function rgb2cmyk(r, g, b, normalized) {
+        var c = 1 - (r / 255);
+        var m = 1 - (g / 255);
+        var y = 1 - (b / 255);
+        var k = Math.min(c, Math.min(m, y));
+
+        c = (c - k) / (1 - k);
+        m = (m - k) / (1 - k);
+        y = (y - k) / (1 - k);
+
+        if (!normalized) {
+            c = Math.round(c * 10000) / 100;
+            m = Math.round(m * 10000) / 100;
+            y = Math.round(y * 10000) / 100;
+            k = Math.round(k * 10000) / 100;
+        }
+
+        c = isNaN(c) ? 0 : c;
+        m = isNaN(m) ? 0 : m;
+        y = isNaN(y) ? 0 : y;
+        k = isNaN(k) ? 0 : k;
+
+        return {
+            c: c,
+            m: m,
+            y: y,
+            k: k
+        }
+    }
+
+    function cmyk2rgb(c, m, y, k, normalized) {
+        c = (c / 100);
+        m = (m / 100);
+        y = (y / 100);
+        k = (k / 100);
+
+        c = c * (1 - k) + k;
+        m = m * (1 - k) + k;
+        y = y * (1 - k) + k;
+
+        var r = 1 - c;
+        var g = 1 - m;
+        var b = 1 - y;
+
+        if (!normalized) {
+            r = Math.round(255 * r);
+            g = Math.round(255 * g);
+            b = Math.round(255 * b);
+        }
+
+        return {
+            r: r,
+            g: g,
+            b: b
+        }
+    }
+
+    download_img = function(el) {
+        let canvas = document.getElementById("canvas_result");
+        let imageURI = canvas.toDataURL("image/jpg");
+        el.href = imageURI;
+    };
+</script>
+
+</html>
